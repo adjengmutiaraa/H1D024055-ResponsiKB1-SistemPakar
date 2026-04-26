@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXPERTSYS // Prioritas Tugas Kuliah</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0d0d0d; --white:#f5f0e8; --yellow:#f5c400; --orange:#e85d04;
+  --red:#d00000; --green:#2d6a4f; --blue:#1d3557; --gray:#2a2a2a;
+  --mgray:#555; --lgray:#888; --border:2px solid var(--black);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'IBM Plex Mono',monospace;background:var(--white);color:var(--black);min-height:100vh;cursor:crosshair}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:9999}
+
+.status-bar{background:var(--black);color:var(--yellow);font-size:.65rem;letter-spacing:.2em;padding:.35rem 1.5rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block;margin-right:.5rem;animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.status-right{display:flex;gap:2rem}
+
+.hero{background:var(--black);color:var(--white);padding:3rem 1.5rem 2.5rem;position:relative;overflow:hidden;border-bottom:4px solid var(--yellow)}
+.hero::before{content:'EXPERT SYSTEM';position:absolute;right:-1rem;top:-1rem;font-family:'Bebas Neue',sans-serif;font-size:12rem;line-height:.9;color:rgba(245,196,0,.05);pointer-events:none;white-space:pre;letter-spacing:-.02em}
+.hero-inner{max-width:1100px;margin:0 auto;position:relative}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:var(--yellow);color:var(--black);font-size:.6rem;font-weight:600;letter-spacing:.2em;padding:.3rem .7rem;margin-bottom:1.2rem;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 100%,0 100%)}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,10vw,7rem);line-height:.92;letter-spacing:.02em;color:var(--white)}
+h1 .accent{color:var(--yellow)}
+.hero-sub{margin-top:1rem;font-size:.72rem;color:var(--lgray);letter-spacing:.08em;max-width:480px;line-height:1.6}
+.hero-stats{display:flex;gap:0;margin-top:2rem;border:1px solid #333}
+.stat-box{flex:1;padding:.8rem 1rem;border-right:1px solid #333;text-align:center}
+.stat-box:last-child{border-right:none}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--yellow);line-height:1}
+.stat-label{font-size:.55rem;color:var(--lgray);letter-spacing:.15em;margin-top:.2rem}
+
+.main{max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem}
+.two-col{display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start}
+
+.section-label{font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;color:var(--black)}
+.section-label::before{content:'▶';color:var(--yellow);font-size:.7rem}
+.section-label::after{content:'';flex:1;height:2px;background:var(--black)}
+
+.task-card{border:var(--border);margin-bottom:1.2rem;background:var(--white);position:relative;animation:stampIn .25s ease;box-shadow:4px 4px 0 var(--black);transition:box-shadow .15s,transform .15s}
+.task-card:hover{box-shadow:6px 6px 0 var(--black);transform:translate(-1px,-1px)}
+@keyframes stampIn{from{opacity:0;transform:scale(.97) translateY(-4px)}to{opacity:1;transform:none}}
+.task-card-header{background:var(--black);color:var(--yellow);padding:.5rem .9rem;display:flex;justify-content:space-between;align-items:center;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em}
+.task-card-body{padding:.9rem}
+.field-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+.field-full{grid-column:1/-1}
+.field label{display:block;font-size:.55rem;letter-spacing:.15em;font-weight:600;color:var(--mgray);margin-bottom:.3rem;text-transform:uppercase}
+input[type="text"],input[type="number"],select{width:100%;border:2px solid var(--black);background:var(--white);color:var(--black);font-family:'IBM Plex Mono',monospace;font-size:.78rem;padding:.45rem .6rem;outline:none;-webkit-appearance:none;transition:background .15s}
+input:focus,select:focus{background:#fff9e0;border-color:var(--yellow);box-shadow:2px 2px 0 var(--black)}
+.btn-del{background:transparent;border:none;color:var(--lgray);cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.1em;padding:.2rem .5rem;transition:all .15s}
+.btn-del:hover{color:var(--red);text-decoration:line-through}
+
+.btn-add{width:100%;border:2px dashed var(--black);background:transparent;color:var(--mgray);font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.1em;padding:.65rem;cursor:pointer;margin-bottom:1.2rem;transition:all .15s}
+.btn-add:hover{background:#f5f0e8;border-style:solid;color:var(--black)}
+.btn-run{width:100%;background:var(--yellow);border:var(--border);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em;padding:.7rem 2rem;cursor:crosshair;box-shadow:4px 4px 0 var(--black);transition:all .12s;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.btn-run:hover{background:var(--black);color:var(--yellow);box-shadow:6px 6px 0 var(--yellow)}
+.btn-run:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--black)}
+.btn-run:disabled{opacity:.5;cursor:not-allowed}
+
+.kb-panel{border:var(--border);box-shadow:4px 4px 0 var(--black);position:sticky;top:3rem}
+.kb-header{background:var(--black);color:var(--yellow);padding:.6rem .9rem;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;display:flex;justify-content:space-between;align-items:center}
+.kb-count{background:var(--yellow);color:var(--black);font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;padding:.15rem .4rem}
+.kb-body{padding:.5rem 0;max-height:500px;overflow-y:auto}
+.kb-body::-webkit-scrollbar{width:4px}
+.kb-body::-webkit-scrollbar-track{background:var(--white)}
+.kb-body::-webkit-scrollbar-thumb{background:var(--black)}
+.kb-rule{padding:.55rem .9rem;border-bottom:1px solid #e0dbd0;display:flex;gap:.6rem;align-items:flex-start;cursor:pointer;transition:background .1s;font-size:.65rem}
+.kb-rule:hover{background:#fff9e0}
+.kb-rule:last-child{border-bottom:none}
+.rule-badge{background:var(--black);color:var(--yellow);font-size:.55rem;font-weight:600;padding:.15rem .35rem;white-space:nowrap;flex-shrink:0}
+.rule-text{color:var(--mgray);line-height:1.5;flex:1}
+.rule-priority{font-size:.55rem;font-weight:600;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;margin-left:auto}
+
+#results-section{display:none;margin-top:2.5rem}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem}
+.result-tile{border:var(--border);background:var(--white);box-shadow:5px 5px 0 var(--black);position:relative;overflow:hidden;animation:stampIn .35s ease both;transition:box-shadow .15s,transform .15s}
+.result-tile:hover{box-shadow:8px 8px 0 var(--black);transform:translate(-2px,-2px)}
+.rank-stripe{position:absolute;top:0;left:0;width:52px;height:52px;overflow:hidden}
+.rank-stripe::before{content:attr(data-rank);position:absolute;background:var(--yellow);color:var(--black);font-family:'Bebas Neue',sans-serif;font-size:1.2rem;width:70px;text-align:center;top:14px;left:-14px;transform:rotate(-45deg)}
+.tile-header{padding:.7rem .9rem .7rem 3rem;border-bottom:var(--border);min-height:52px}
+.tile-name{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:.95rem}
+.tile-sub{font-size:.6rem;color:var(--lgray);margin-top:.1rem;letter-spacing:.05em}
+.tile-priority{padding:.45rem .9rem;font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.06em;border-bottom:var(--border);display:flex;align-items:center;justify-content:space-between}
+.priority-poin{font-family:'IBM Plex Mono',monospace;font-size:.65rem;font-weight:600;background:var(--black);color:var(--yellow);padding:.2rem .5rem}
+.tile-body{padding:.75rem .9rem}
+.facts-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+.fact-chip{font-size:.58rem;letter-spacing:.06em;border:1.5px solid var(--black);padding:.15rem .45rem;background:var(--white)}
+.rekomendasi{background:var(--black);color:var(--yellow);padding:.5rem .7rem;font-size:.68rem;line-height:1.5;margin-bottom:.6rem}
+.rekomendasi::before{content:'! ';font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--yellow)}
+.rule-fired-tag{font-size:.58rem;color:var(--mgray);display:flex;align-items:center;gap:.4rem}
+.rule-fired-tag span{color:var(--orange);font-weight:600}
+.btn-trace{width:100%;background:transparent;border:none;border-top:1px solid #ddd;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--lgray);padding:.45rem .9rem;cursor:pointer;text-align:left;letter-spacing:.06em;display:flex;justify-content:space-between;transition:background .12s}
+.btn-trace:hover{background:#fff9e0;color:var(--black)}
+.trace-panel{display:none;border-top:var(--border);background:#0d0d0d;color:#888;padding:.7rem .9rem;font-size:.6rem;line-height:1.8;max-height:220px;overflow-y:auto}
+.trace-panel.open{display:block}
+.trace-panel::-webkit-scrollbar{width:3px}
+.trace-panel::-webkit-scrollbar-thumb{background:var(--yellow)}
+.tline{display:flex;gap:.5rem;align-items:baseline}
+.tline-icon{color:#444}
+.tline-icon.hit{color:var(--yellow)}
+.tline-id{color:var(--yellow);min-width:2.5rem}
+.tline-desc{color:#555}
+.tline-desc.hit{color:#bbb}
+
+.summary-bar{border:var(--border);background:var(--black);color:var(--white);padding:1rem 1.4rem;margin-bottom:1.5rem;display:flex;gap:2rem;align-items:center;flex-wrap:wrap;box-shadow:4px 4px 0 var(--yellow)}
+.sum-item{font-size:.68rem;color:var(--lgray)}
+.sum-item strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--yellow);line-height:1}
+.sum-divider{width:1px;background:#333;align-self:stretch}
+
+.p-kritis{color:#d00000} .p-sangat-tinggi{color:#e85d04} .p-tinggi{color:#f48c06}
+.p-sedang{color:#588157} .p-rendah{color:#1d6a96} .p-sangat-rendah{color:#666}
+
+.loader-overlay{display:none;position:fixed;inset:0;background:rgba(13,13,13,.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem}
+.loader-overlay.show{display:flex}
+.loader-text{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--yellow);letter-spacing:.15em}
+.loader-bar-outer{width:280px;height:6px;border:1px solid var(--yellow)}
+.loader-bar-inner{height:100%;background:var(--yellow);animation:loadpulse 1s ease-in-out infinite alternate}
+@keyframes loadpulse{from{width:20%}to{width:95%}}
+
+@media(max-width:768px){
+  .two-col{grid-template-columns:1fr}
+  .kb-panel{position:static}
+  .field-grid{grid-template-columns:1fr 1fr}
+  .result-grid{grid-template-columns:1fr}
+  h1{font-size:3.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <div><span class="status-dot"></span>EXPERTSYS v2.0 // FORWARD CHAINING ENGINE // ONLINE</div>
+  <div class="status-right">
+    <span id="clock">--:--:--</span>
+    <span>15 RULES LOADED</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">&#x2B1B; SISTEM PAKAR &mdash; AKADEMIK</div>
+    <h1>EXPERT<br><span class="accent">TASK</span></h1>
+    <p class="hero-sub">Mesin inferensi forward chaining untuk menentukan prioritas tugas kuliah berdasarkan basis pengetahuan pakar akademik.</p>
+    <div class="hero-stats">
+      <div class="stat-box"><div class="stat-num">15</div><div class="stat-label">Total Rules</div></div>
+      <div class="stat-box"><div class="stat-num">6</div><div class="stat-label">Level Prioritas</div></div>
+      <div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Parameter Input</div></div>
+      <div class="stat-box"><div class="stat-num">FC</div><div class="stat-label">Metode Inferensi</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="two-col">
+    <div>
+      <div class="section-label">Input Data Tugas</div>
+      <div id="task-list"></div>
+      <button class="btn-add" onclick="addTask()">[ + TAMBAH TUGAS ]</button>
+      <button class="btn-run" id="btn-run" onclick="runInference()">&#9654; JALANKAN INFERENSI</button>
+    </div>
+    <div>
+      <div class="section-label">Knowledge Base</div>
+      <div class="kb-panel">
+        <div class="kb-header">BASIS ATURAN<span class="kb-count">15 RULES</span></div>
+        <div class="kb-body" id="kb-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="results-section">
+    <div class="section-label">Hasil Inferensi</div>
+    <div class="summary-bar" id="summary-bar"></div>
+    <div class="result-grid" id="result-grid"></div>
+  </div>
+</div>
+
+<div class="loader-overlay" id="loader">
+  <div class="loader-text">MEMPROSES INFERENSI...</div>
+  <div class="loader-bar-outer"><div class="loader-bar-inner"></div></div>
+</div>
+
+<script>
+const PRIORITY_CLASS={'KRITIS':'p-kritis','SANGAT TINGGI':'p-sangat-tinggi','TINGGI':'p-tinggi','SEDANG':'p-sedang','RENDAH':'p-rendah','SANGAT RENDAH':'p-sangat-rendah'};
+
+function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.toTimeString().slice(0,8);}
+setInterval(updateClock,1000);updateClock();
+
+let taskCount=0;
+function addTask(d={}){
+  taskCount++;const id=taskCount;
+  const el=document.createElement('div');
+  el.className='task-card';el.id=`task-${id}`;
+  el.innerHTML=`
+    <div class="task-card-header">
+      <span>// TUGAS #${String(id).padStart(2,'0')}</span>
+      <button class="btn-del" onclick="removeTask(${id})">[ HAPUS ]</button>
+    </div>
+    <div class="task-card-body">
+      <div class="field-grid">
+        <div class="field field-full">
+          <label>Nama Tugas</label>
+          <input type="text" id="nama-${id}" placeholder="cth. UTS Logika Fuzzy" value="${d.nama||''}">
+        </div>
+        <div class="field">
+          <label>Deadline (hari)</label>
+          <input type="number" id="deadline-${id}" min="0" max="60" step="1" placeholder="0-60" value="${d.deadline!==undefined?d.deadline:''}">
+        </div>
+        <div class="field">
+          <label>Bobot Nilai (%)</label>
+          <input type="number" id="bobot-${id}" min="0" max="100" step="5" placeholder="0-100" value="${d.bobot!==undefined?d.bobot:''}">
+        </div>
+        <div class="field">
+          <label>Tingkat Kesulitan</label>
+          <select id="kesulitan-${id}">
+            <option value="rendah" ${d.kesulitan==='rendah'?'selected':''}>RENDAH</option>
+            <option value="sedang" ${!d.kesulitan||d.kesulitan==='sedang'?'selected':''}>SEDANG</option>
+            <option value="tinggi" ${d.kesulitan==='tinggi'?'selected':''}>TINGGI</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tipe Tugas</label>
+          <select id="tipe-${id}">
+            <option value="tugas" ${!d.tipe||d.tipe==='tugas'?'selected':''}>TUGAS BIASA</option>
+            <option value="ujian" ${d.tipe==='ujian'?'selected':''}>UJIAN / QUIZ</option>
+            <option value="praktikum" ${d.tipe==='praktikum'?'selected':''}>PRAKTIKUM</option>
+            <option value="proyek" ${d.tipe==='proyek'?'selected':''}>PROYEK</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Sudah Dimulai?</label>
+          <select id="mulai-${id}">
+            <option value="ya" ${d.mulai==='ya'?'selected':''}>YA</option>
+            <option value="tidak" ${!d.mulai||d.mulai==='tidak'?'selected':''}>BELUM</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('task-list').appendChild(el);
+}
+
+function removeTask(id){document.getElementById(`task-${id}`)?.remove();}
+
+async function runInference(){
+  const rows=document.querySelectorAll('.task-card');
+  const tasks=[];
+  for(const row of rows){
+    const id=row.id.replace('task-','');
+    const nama=document.getElementById(`nama-${id}`)?.value.trim();
+    const deadline=parseFloat(document.getElementById(`deadline-${id}`)?.value);
+    const bobot=parseFloat(document.getElementById(`bobot-${id}`)?.value);
+    const kesulitan=document.getElementById(`kesulitan-${id}`)?.value;
+    const tipe=document.getElementById(`tipe-${id}`)?.value;
+    const mulai=document.getElementById(`mulai-${id}`)?.value;
+    if(!nama||isNaN(deadline)||isNaN(bobot)){alert(`Lengkapi semua field untuk Tugas #${id}`);return;}
+    tasks.push({nama,deadline_hari:deadline,bobot_persen:bobot,tingkat_kesulitan:kesulitan,tipe_tugas:tipe,sudah_dimulai:mulai});
+  }
+  if(!tasks.length){alert('Tambahkan minimal 1 tugas!');return;}
+  document.getElementById('loader').classList.add('show');
+  document.getElementById('btn-run').disabled=true;
+  try{
+    const res=await fetch('/infer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tasks})});
+    const data=await res.json();
+    renderResults(data);
+  }catch(e){alert('Error: '+e.message);}
+  finally{document.getElementById('loader').classList.remove('show');document.getElementById('btn-run').disabled=false;}
+}
+
+function renderResults(data){
+  const section=document.getElementById('results-section');
+  const grid=document.getElementById('result-grid');
+  const sumBar=document.getElementById('summary-bar');
+  section.style.display='block';
+  grid.innerHTML='';
+  section.scrollIntoView({behavior:'smooth',block:'start'});
+
+  const kritisCount=data.filter(d=>d.priority==='KRITIS').length;
+  const topTask=data[0]?.nama||'-';
+  const maxPoin=data[0]?.points||0;
+  sumBar.innerHTML=`
+    <div class="sum-item"><strong>${data.length}</strong>TUGAS DIANALISIS</div>
+    <div class="sum-divider"></div>
+    <div class="sum-item"><strong style="color:#d00000">${kritisCount}</strong>STATUS KRITIS</div>
+    <div class="sum-divider"></div>
+    <div class="sum-item"><strong>${maxPoin}</strong>POIN TERTINGGI</div>
+    <div class="sum-divider"></div>
+    <div class="sum-item" style="flex:1"><strong style="font-size:1rem;font-family:'IBM Plex Sans',sans-serif">${topTask}</strong>PRIORITAS UTAMA</div>`;
+
+  data.forEach((t,idx)=>{
+    const pcls=PRIORITY_CLASS[t.priority]||'';
+    const traceLines=t.all_rules.map(r=>`
+      <div class="tline">
+        <span class="tline-icon ${r.fired?'hit':''}">${r.fired?'▶':'○'}</span>
+        <span class="tline-id">${r.id}</span>
+        <span class="tline-desc ${r.fired?'hit':''}">${r.desc}</span>
+      </div>`).join('');
+    const firedCount=t.all_rules.filter(r=>r.fired).length;
+    const tile=document.createElement('div');
+    tile.className='result-tile';
+    tile.style.animationDelay=`${idx*60}ms`;
+    tile.innerHTML=`
+      <div class="rank-stripe" data-rank="#${t.rank}"></div>
+      <div class="tile-header">
+        <div class="tile-name">${t.nama}</div>
+        <div class="tile-sub">${t.facts.deadline_hari}hr · ${t.facts.bobot_persen}% · ${t.facts.tingkat_kesulitan} · ${t.facts.tipe_tugas}</div>
+      </div>
+      <div class="tile-priority ${pcls}">
+        ${t.priority}
+        <span class="priority-poin">${t.points} PTS</span>
+      </div>
+      <div class="tile-body">
+        <div class="facts-row">
+          <span class="fact-chip">&#x23F0; ${t.facts.deadline_hari} hari</span>
+          <span class="fact-chip">&#x1F4CA; ${t.facts.bobot_persen}%</span>
+          <span class="fact-chip">&#x1F525; ${t.facts.tingkat_kesulitan}</span>
+          <span class="fact-chip">${t.facts.sudah_dimulai==='ya'?'&#x2705; mulai':'&#x23F3; belum'}</span>
+        </div>
+        <div class="rekomendasi">${t.rekomendasi}</div>
+        <div class="rule-fired-tag">RULE AKTIF: <span>${t.fired_rule}</span>&nbsp;&middot;&nbsp;${firedCount}/${t.all_rules.length} terpenuhi</div>
+      </div>
+      <button class="btn-trace" onclick="toggleTrace(this)" data-idx="${idx}">
+        <span>&#x25C8; LIHAT FORWARD CHAINING TRACE</span><span>&#x25BC;</span>
+      </button>
+      <div class="trace-panel" id="trace-${idx}">
+        <div style="color:#f5c400;font-size:.55rem;letter-spacing:.15em;margin-bottom:.5rem">// FORWARD CHAINING TRACE &mdash; ${t.nama.toUpperCase()}</div>
+        ${traceLines}
+      </div>`;
+    grid.appendChild(tile);
+  });
+}
+
+function toggleTrace(btn){
+  const idx=btn.dataset.idx;
+  const panel=document.getElementById(`trace-${idx}`);
+  panel.classList.toggle('open');
+  btn.querySelector('span:last-child').textContent=panel.classList.contains('open')?'▲':'▼';
+}
+
+async function loadKB(){
+  try{
+    const res=await fetch('/rules');
+    const rules=await res.json();
+    document.getElementById('kb-list').innerHTML=rules.map(r=>`
+      <div class="kb-rule">
+        <span class="rule-badge">${r.id}</span>
+        <span class="rule-text">${r.desc}</span>
+        <span class="rule-priority ${PRIORITY_CLASS[r.priority]||''}">${r.priority}</span>
+      </div>`).join('');
+  }catch(e){
+    document.getElementById('kb-list').innerHTML='<div style="padding:.8rem;font-size:.65rem;color:#888">Gagal memuat rules.</div>';
+  }
+}
+
+</script>
+</body>
+</html>
